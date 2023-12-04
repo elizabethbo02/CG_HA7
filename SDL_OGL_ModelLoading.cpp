@@ -46,6 +46,10 @@ float lastFrame = 0.0f;
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+
+// Second light source
+glm::vec3 lightPosition(1.5f, 1.0f, 2.0f);
+
 //event handlers
 void HandleKeyDown(const SDL_KeyboardEvent& key);
 void HandleMouseMotion(const SDL_MouseMotionEvent& motion);
@@ -234,7 +238,10 @@ bool initGL()
 	//gModel.LoadModel("./models/casa/casa moderna.obj");
 	gModel.LoadModel("./models/nanosuit/nanosuit.obj");
 	//gModel.LoadModel("./models/maya/maya.obj");
-	//gModel.LoadModel("./models/Cat/12221_Cat_v1_l3.obj");
+    //gModel.LoadModel("./models/Cat/12221_Cat_v1_l3.obj");
+	
+	// Loading the second model 
+	gModel.LoadModel("./models/nanosuit/nanosuit.obj");
 
 	gVAO = CreateCube(1.0f, gVBO, gEBO);
 
@@ -265,14 +272,27 @@ void render()
 	//Clear color buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// Render the first object (original position)
 	glm::mat4 model = glm::mat4(1.0f);
 //	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(0, 0, 1));
-	model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+	model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));	
 	//depending on the model size, the model may have to be scaled up or down to be visible
-//  model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
-	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-//	model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+    //  model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
+	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scaling
+	//	model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
 //	model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+
+	// Render the second object (new position)
+	glm::mat4 model2 = glm::mat4(1.0f);
+	model2 = glm::translate(model2, glm::vec3(1.8f, -1.0f, -0.3f)); // New position
+	model2 = glm::scale(model2, glm::vec3(0.2f, 0.2f, 0.2f)); // Scaling
+	gShader.setMat4("model", model2); //update the model matrix
+
+	gShader.setMat3("normalMat", glm::transpose(glm::inverse(model2))); // Update normal matrix
+	//Transpose the matrix (swap rows & columns). Calculates the inverse of the matrix.
+	
+	gModel.Draw(gShader);
+	//Model class.method(instance of class.)
 
 	glm::mat4 view = camera.GetViewMatrix();
 	glm::mat4 proj = glm::perspective(glm::radians(camera.Zoom), 4.0f / 3.0f, 0.1f, 100.0f);
@@ -286,8 +306,12 @@ void render()
 	gShader.setMat3("normalMat", normalMat); 
 
 	//lighting
-	gShader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
+	gShader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f); //white
 	gShader.setVec3("light.position", lightPos);
+	gShader.setVec3("viewPos", camera.Position);
+
+	gShader.setVec3("light.diffuse", 1.0f, 0.5f, 0.8f); //pink
+	gShader.setVec3("light.position", lightPosition);
 	gShader.setVec3("viewPos", camera.Position);
 
 	gModel.Draw(gShader);

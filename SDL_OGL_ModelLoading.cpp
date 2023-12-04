@@ -273,14 +273,19 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render the first object (original position)
-	glm::mat4 model = glm::mat4(1.0f);
-//	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(0, 0, 1));
+	glm::mat4 model = glm::mat4(1.0f); //initialize a 4x4 matrix, 1.0f is initial value for all elements of the matrix
+
+    //model = glm::rotate(model, glm::radians(30.0f), glm::vec3(0, 0, 1));
+
 	model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));	
+
 	//depending on the model size, the model may have to be scaled up or down to be visible
-    //  model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
+    //model = glm::scale(model, glm::vec3(0.001f, 0.001f, 0.001f));
+
 	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f)); // Scaling
-	//	model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-//	model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+
+	//model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+    //model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 
 	// Render the second object (new position)
 	glm::mat4 model2 = glm::mat4(1.0f);
@@ -294,11 +299,13 @@ void render()
 	gModel.Draw(gShader);
 	//Model class.method(instance of class.)
 
-	glm::mat4 view = camera.GetViewMatrix();
-	glm::mat4 proj = glm::perspective(glm::radians(camera.Zoom), 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 view = camera.GetViewMatrix(); //Obtains the view matrix from the camera object, which represents the camera's position and orientation.
+	glm::mat4 proj = glm::perspective(glm::radians(camera.Zoom), 4.0f / 3.0f, 0.1f, 100.0f); 
+	//Creates a perspective projection matrix based on the camera's zoom, aspect ratio (4.0f / 3.0f), and near/far clipping planes.
 
 	glm::mat3 normalMat = glm::transpose(glm::inverse(model));
 
+	//Activates the shader program and sets various uniform matrices(model, view, proj, normalMat) for transformations in the vertex shader.
 	glUseProgram(gShader.ID);
 	gShader.setMat4("model", model);
 	gShader.setMat4("view", view);
